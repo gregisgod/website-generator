@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+<head><meta charset="UTF-8"><meta name="viewport" content="width=device-width"><script src="https://cdn.tailwindcss.com"></script><title>Matrix Web V2 - With AI</title></head>
+<body class="bg-black text-white p-4">
+<div class="max-w-6xl mx-auto grid md:grid-cols-2 gap-6">
+ <div class="bg-zinc-900 p-6 rounded-2xl space-y-4">
+   <h1 class="text-2xl font-bold">Matrix Web + AI Generator</h1>
+   <input id="bizName" placeholder="Business Name" class="w-full p-3 rounded bg-zinc-800">
+   <input id="tagline" placeholder="Tagline" class="w-full p-3 rounded bg-zinc-800">
+   <textarea id="services" placeholder="Services one per line: Haircut £20" class="w-full p-3 rounded bg-zinc-800 h-24"></textarea>
+   <input id="phone" placeholder="Phone" class="w-full p-3 rounded bg-zinc-800">
+   <input id="colour" type="color" value="#ff3b30" class="w-full h-12 rounded">
+
+   <div class="flex items-center gap-3 bg-zinc-800 p-4 rounded-xl">
+     <input type="checkbox" id="addAI" checked class="w-6 h-6">
+     <div><b>Add AI Assistant</b><p class="text-sm text-zinc-400">+£50 setup, £20/month - books customers 24/7</p></div>
+   </div>
+
+   <button onclick="generate()" class="w-full bg-white text-black font-bold py-3 rounded-xl">Generate £150 Site →</button>
+   <button onclick="download()" class="w-full bg-zinc-800 py-3 rounded-xl">Download HTML</button>
+   <p id="price" class="text-center text-zinc-400 text-sm">Setup: £100 + £20/year domain</p>
+ </div>
+ <div class="bg-white rounded-2xl overflow-hidden"><iframe id="preview" class="w-full h-[600px] border-0"></iframe></div>
+</div>
+
+<script>
+let finalHTML='';
+function generate(){
+ const name=document.getElementById('bizName').value||'Your Business';
+ const tagline=document.getElementById('tagline').value||'We get the job done right';
+ const phone=document.getElementById('phone').value||'01234567890';
+ const colour=document.getElementById('colour').value;
+ const hasAI=document.getElementById('addAI').checked;
+ const services=document.getElementById('services').value.split('\n').filter(s=>s.trim());
+ document.getElementById('price').innerText = hasAI ? 'Setup: £150 (£100+£50) + £20/year + £20/mo AI' : 'Setup: £100 + £20/year';
+
+ const aiWidget = hasAI ? `
+ <div id="ai-chat" class="fixed bottom-4 right-4 w-80 bg-white rounded-2xl shadow-2xl border overflow-hidden">
+   <div class="p-4 text-white flex justify-between" style="background:${colour}"><b>AI Assistant - ${name}</b><span onclick="this.parentElement.parentElement.style.display='none'" class="cursor-pointer">x</span></div>
+   <div id="chat-box" class="h-64 overflow-y-auto p-4 text-black text-sm space-y-2"><div class="bg-zinc-100 p-3 rounded-xl">Hi! I'm the AI for ${name}. Ask about prices, opening times, or book a slot!</div></div>
+   <div class="p-3 flex gap-2 border-t"><input id="chat-input" placeholder="Type..." class="flex-1 p-2 rounded bg-zinc-100 text-black"><button onclick="sendChat()" class="px-4 py-2 rounded text-white" style="background:${colour}">Send</button></div>
+ </div>
+ <script>
+   function sendChat(){
+     const input=document.getElementById('chat-input'); const box=document.getElementById('chat-box');
+     if(!input.value) return;
+     box.innerHTML+='<div class=\\'bg-black text-white p-3 rounded-xl ml-8\\'>'+input.value+'</div>';
+     const reply = input.value.toLowerCase().includes('price') ? 'Our prices: ${services.join(', ')}' : input.value.toLowerCase().includes('open') ? 'We are open Mon-Sat 9am-6pm!' : 'Great! I can book you in. What day works? Call us on ${phone} or I will hold a slot for you.';
+     setTimeout(()=>{box.innerHTML+='<div class=\\'bg-zinc-100 p-3 rounded-xl mr-8\\'>'+reply+'</div>'; box.scrollTop=box.scrollHeight;},500);
+     input.value=''; box.scrollTop=box.scrollHeight;
+   }
+ <\/script>` : '';
+
+ finalHTML = `<!DOCTYPE html><html><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width"><script src="https://cdn.tailwindcss.com"><\/script></head><body class="bg-zinc-50">
+ <nav class="p-6 flex justify-between items-center bg-white shadow"><b>${name}</b><a href="tel:${phone}" style="background:${colour}" class="text-white px-5 py-2 rounded-full">Call Now</a></nav>
+ <section class="px-6 py-20 text-center text-white" style="background:${colour}"><h1 class="text-5xl font-black">${name}</h1><p class="text-xl mt-4">${tagline}</p><a href="tel:${phone}" class="mt-8 inline-block bg-white text-black px-8 py-4 rounded-full font-bold">Book Now</a></section>
+ <section class="p-6 grid gap-4 max-w-3xl mx-auto -mt-10">${services.map(s=>`<div class="bg-white p-6 rounded-2xl shadow flex justify-between"><span>${s.split('£')[0]}</span><b style="color:${colour}">£${s.split('£')[1]||''}</b></div>`).join('')}</section>
+ ${aiWidget}
+ <footer class="text-center p-10 text-zinc-500">${hasAI ? 'AI Powered by Matrix Web • £20/mo' : ''} • Powered by Matrix Web - £20/year</footer>
+ </body></html>`;
+
+ document.getElementById('preview').srcdoc=finalHTML;
+}
+function download(){const blob=new Blob([finalHTML],{type:'text/html'});const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='matrix-site.html';a.click();}
+generate();
+</script>
+</body>
+</html>
