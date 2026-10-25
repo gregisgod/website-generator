@@ -1,7 +1,8 @@
+
 <!DOCTYPE html>
 <html>
 <head>
-<title>Matrix Web Generator</title>
+<title>Matrix Web Generator - WORKING AI</title>
 <style>
 body{font-family:Arial;display:flex;margin:0}
 .left{width:360px;padding:20px;background:#f5f5f5;height:100vh;overflow:auto}
@@ -9,50 +10,28 @@ body{font-family:Arial;display:flex;margin:0}
 input,textarea{width:100%;margin:5px 0 15px;padding:8px;box-sizing:border-box}
 label{font-weight:bold;font-size:13px}
 button{padding:12px;width:100%;background:black;color:white;border:none;cursor:pointer;margin-top:10px;font-weight:bold}
-.preview{border:2px solid #222;min-height:600px}
-.costBox{margin-top:15px;font-size:12px;background:white;padding:10px;border:1px solid #ccc;line-height:1.6}
+.preview{border:2px solid #222;min-height:700px}
+.costBox{margin-top:15px;font-size:12px;background:white;padding:10px;border:1px solid #ccc}
 </style>
 </head>
 <body>
 <div class="left">
 <h2>Matrix Web Builder</h2>
-
 <label>Shop Name</label>
 <input id="shopName" value="DayToday">
-
-<label>Tagline (no £ sign here)</label>
+<label>Tagline (no £)</label>
 <input id="tagline" value="Shop Local, Save More">
-
-<label>About Text</label>
-<textarea id="about" rows="4">Your local convenience store in Denny, open 7 days a week.</textarea>
-
-<label style="font-weight:normal;display:flex;gap:8px;align-items:center;">
-<input type="checkbox" id="bookingToggle" style="width:auto;"> Add Booking System (+£10/month)
-</label>
-
-<label style="font-weight:normal;display:flex;gap:8px;align-items:center;">
-<input type="checkbox" id="aiToggle" style="width:auto;"> Add AI Assistant (+£20/month)
-</label>
-
+<label>About</label>
+<textarea id="about" rows="3">Your local convenience store in Denny, open 7 days 8am-10pm.</textarea>
+<label style="display:flex;gap:8px;align-items:center;font-weight:normal;"><input type="checkbox" id="bookingToggle" style="width:auto;"> Add Booking (+£10/month)</label>
+<label style="display:flex;gap:8px;align-items:center;font-weight:normal;"><input type="checkbox" id="aiToggle" checked style="width:auto;"> Add AI Assistant (+£20/month)</label>
 <label>Button Text</label>
 <input id="buttonText" value="Book Now">
-
 <button onclick="generate()">Generate Preview</button>
 <button onclick="download()" style="background:#0a7;">Download HTML</button>
-
-<div class="costBox">
-<b>Pricing:</b><br>
-Base Site: £100 + £20/year<br>
-+ Booking: +£10/month<br>
-+ AI: +£20/month<br><br>
-Example: Shop with Booking + AI = £100 + £20/year + £30/month
+<div class="costBox">Base: £100 + £20/year<br>Booking: +£10/m<br>AI: +£20/m (WORKING)</div>
 </div>
-</div>
-
-<div class="right">
-<div id="preview" class="preview"></div>
-</div>
-
+<div class="right"><div id="preview" class="preview"></div></div>
 <script>
 let finalHTML="";
 function generate(){
@@ -63,32 +42,72 @@ function generate(){
  const hasBooking=document.getElementById('bookingToggle').checked;
  const hasAI=document.getElementById('aiToggle').checked;
 
- let bookingHTML="";
- if(hasBooking){
-   bookingHTML=`<div style="padding:30px;background:#fff3cd;text-align:center;border-top:1px solid #eee;"><h3>Online Booking</h3><p>Reserve your slot today</p><button style="padding:12px 24px;background:black;color:white;border:none;">${btnText}</button></div>`;
- }
+ let bookingHTML= hasBooking ? `<div style="padding:30px;background:#fff3cd;text-align:center;"><h3>Online Booking</h3><button style="padding:12px 24px;background:black;color:white;border:none;">${btnText}</button></div>` : "";
 
- let aiHTML="";
+ let aiHTML= "";
  if(hasAI){
-   aiHTML=`<div style="padding:30px;background:#e3f2fd;text-align:center;border-top:1px solid #eee;"><h3>AI Assistant</h3><p>Ask our AI about opening times, products & more - 24/7</p><div style="background:white;max-width:400px;margin:15px auto;padding:10px;border-radius:20px;border:1px solid #ccc;text-align:left;">Hi! How can I help you today?</div></div>`;
+   aiHTML=`
+   <div style="padding:20px;background:#e3f2fd;border-top:1px solid #ddd;">
+     <h3 style="text-align:center;">🤖 AI Assistant - Ask Me Anything</h3>
+     <div id="chatBox" style="background:white;max-width:500px;margin:0 auto;height:300px;overflow-y:auto;border:1px solid #ccc;padding:10px;border-radius:10px;">
+       <div style="background:#eee;padding:8px 12px;border-radius:15px;margin:5px 0;max-width:80%;">Hi! I'm the AI for ${name}. Ask me about opening times, products, or location!</div>
+     </div>
+     <div style="max-width:500px;margin:10px auto;display:flex;gap:5px;">
+       <input id="userInput" placeholder="Ask a question..." style="flex:1;padding:10px;border-radius:20px;border:1px solid #ccc;margin:0;">
+       <button onclick="sendMsg()" style="width:80px;border-radius:20px;margin:0;">Send</button>
+     </div>
+   </div>
+   <script>
+   function sendMsg(){
+     const input=document.getElementById('userInput');
+     const box=document.getElementById('chatBox');
+     const q=input.value.trim();
+     if(!q) return;
+     box.innerHTML+='<div style="background:#d32f2f;color:white;padding:8px 12px;border-radius:15px;margin:5px 0 5px auto;max-width:80%;text-align:right;">'+q+'</div>';
+     input.value='';
+     let a="Thanks for asking! We are ${name} - ${about}";
+     q=q.toLowerCase();
+     if(q.includes('open') || q.includes('time') || q.includes('close')) a="We are open 7 days a week, 8am to 10pm! Come visit ${name} anytime.";
+     else if(q.includes('where') || q.includes('location') || q.includes('address')) a="We are located right here in Denny, Scotland - your local convenience store!";
+     else if(q.includes('sell') || q.includes('product') || q.includes('have') || q.includes('stock')) a="We sell groceries, snacks, drinks, newspapers, and daily essentials. What do you need?";
+     else if(q.includes('price') || q.includes('cost') || q.includes('how much')) a="We have great low prices every day! Pop in store for today's deals.";
+     else if(q.includes('book')) a="You can book using the booking button above!";
+     else if(q.includes('hi') || q.includes('hello') || q.includes('hey')) a="Hello! How can I help you with ${name} today?";
+     setTimeout(()=>{ box.innerHTML+='<div style="background:#eee;padding:8px 12px;border-radius:15px;margin:5px 0;max-width:80%;">'+a+'</div>'; box.scrollTop=box.scrollHeight; }, 500);
+     box.scrollTop=box.scrollHeight;
+   }
+   document.addEventListener('DOMContentLoaded',()=>{ const inp=document.getElementById('userInput'); if(inp){ inp.addEventListener('keypress',(e)=>{ if(e.key==='Enter') sendMsg(); }); } });
+   <\/script>`;
  }
 
  let priceText="Powered by Matrix Web - £20/year";
- if(hasBooking) priceText+=" + £10/month Booking";
+ if(hasBooking) priceText+=" + £10/month";
  if(hasAI) priceText+=" + £20/month AI";
 
- finalHTML=`<div style="font-family:Arial;">
-   <div style="background:#d32f2f;color:white;padding:50px 20px;text-align:center;"><h1 style="margin:0;font-size:48px;">${name}</h1><p style="font-size:18px;">${tag}</p></div>
-   <div style="padding:40px 20px;text-align:center;max-width:600px;margin:0 auto;"><h2>About Us</h2><p style="line-height:1.6;">${about}</p></div>
-   ${bookingHTML}
-   ${aiHTML}
-   <div style="background:#222;color:#aaa;padding:15px;text-align:center;font-size:11px;">${priceText}</div>
- </div>`;
-
+ finalHTML=`<div style="font-family:Arial;"><div style="background:#d32f2f;color:white;padding:50px 20px;text-align:center;"><h1 style="margin:0;">${name}</h1><p>${tag}</p></div><div style="padding:30px;text-align:center;"><p>${about}</p></div>${bookingHTML}${aiHTML}<div style="background:#222;color:#aaa;padding:15px;text-align:center;font-size:11px;">${priceText}</div></div>`;
  document.getElementById('preview').innerHTML=finalHTML;
+ const temp=document.getElementById('userInput'); if(temp){ temp.addEventListener('keypress',(e)=>{ if(e.key==='Enter') sendMsgPreview(); }); }
+}
+function sendMsgPreview(){
+ const input=document.getElementById('userInput');
+ const box=document.getElementById('chatBox');
+ if(!input || !box) return;
+ const q=input.value.trim();
+ if(!q) return;
+ const name=document.getElementById('shopName').value;
+ const about=document.getElementById('about').value;
+ box.innerHTML+='<div style="background:#d32f2f;color:white;padding:8px 12px;border-radius:15px;margin:5px 0 5px auto;max-width:80%;text-align:right;">'+q+'</div>';
+ input.value='';
+ let a="Thanks for asking! We are "+name+" - "+about;
+ let lq=q.toLowerCase();
+ if(lq.includes('open') || lq.includes('time')) a="We are open 7 days, 8am-10pm!";
+ else if(lq.includes('where') || lq.includes('location')) a="We are in Denny, Scotland!";
+ else if(lq.includes('sell') || lq.includes('product')) a="We sell groceries, snacks, drinks, and essentials.";
+ setTimeout(()=>{ box.innerHTML+='<div style="background:#eee;padding:8px 12px;border-radius:15px;margin:5px 0;max-width:80%;">'+a+'</div>'; box.scrollTop=box.scrollHeight; }, 400);
+ box.scrollTop=box.scrollHeight;
 }
 function download(){
- if(!finalHTML){alert('Click Generate Preview first');return;}
+ if(!finalHTML){alert('Generate first');return;}
  const blob=new Blob([finalHTML],{type:'text/html'});
  const a=document.createElement('a');
  a.href=URL.createObjectURL(blob);
